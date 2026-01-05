@@ -82,26 +82,83 @@ def get_leads_data(token, cols=None):
 
 
 def get_leads_data_filter(df):
-    f_1 = (df['Brand'] == 'Karma Resorts')
-    f_2 = (df['Lead_Sub_Brand'] == 'Other')
-    f_3 = (df['Lead_Source'] == 'Past Guests')
-    f_4 = (~df['Email'].str.contains('karmagroup.com'))
-    f_5 = (df['Email']!='empty')
-    f_6 = (df['Email_Opt_Out']==False)
+    f_1 = (df['Lead_Status'] == 'Attempted to Contact')
 
     # mengambil data yang email, phone dan mobilenya tidak kosong
         
     final_filter = (
-        f_1 & 
-        f_2 & 
-        f_3 & 
-        f_4 & 
-        f_5 & 
-        f_6
+        f_1 
     )
 
-    zoho_df = df.loc[final_filter].copy() # menggunakan copy untuk menghindari setting copy warning
-    zoho_df.reset_index(drop=True, inplace=True)
-    zoho_df
+    filtered_df = df.loc[final_filter].copy() # menggunakan copy untuk menghindari setting copy warning
+    filtered_df.reset_index(drop=True, inplace=True)
+    filtered_df
 
-    return zoho_df
+    return filtered_df
+
+def get_seller_account_data(token, cols=None):
+    url = "https://www.zohoapis.com/crm/v2/coql"
+    headers = {"Authorization": f"Zoho-oauthtoken {token}"}
+    page_size = 200
+
+    start_dt = "'2025-01-01T00:00:01+08:00'"
+    # Get today's date in YYYY-MM-DD format
+    today_date = datetime.now().strftime("%Y-%m-%d")
+
+    # Combine with your specific time and timezone suffix
+    # Note: We include the single quotes inside the string for Zoho COQL
+    end_dt = f"'{today_date}T23:59:59+08:00'"
+
+    dataframes = []
+    offset = 0
+
+    while True:
+        query = (
+            "select Created_Time, id, Vendor_Name, Owner, Sellers_Account_type, "
+            "Email, Phone, City, Country "
+            "from Vendors "
+            f"where Created_Time between {start_dt} and {end_dt} "
+            f"limit {offset}, {page_size}"
+        )
+
+        response = requests.post(url, headers=headers, json={"select_query": query})
+        result = response.json()
+
+        if "data" not in result:
+            print("Zoho error:", result)
+            break
+
+        # ✅ Normalize nested fields (Owner.id → Owner_id)
+        df = json_normalize(result["data"], sep="_")
+
+        # 👉 Filter columns only if cols is provided and not empty
+        if cols:
+            df = df[[c for c in cols if c in df.columns]]
+
+        dataframes.append(df)
+
+        if not result.get("info", {}).get("more_records"):
+            break
+
+        offset += page_size
+
+    if not dataframes:
+        return pd.DataFrame(columns=cols if cols else None)
+
+    return pd.concat(dataframes, ignore_index=True)
+
+
+def get_seller_account_data_filter(df):
+    f_1 = (df['Lead_Status'] == 'Attempted to Contact')
+
+    # mengambil data yang email, phone dan mobilenya tidak kosong
+        
+    final_filter = (
+        f_1 
+    )
+
+    filtered_df = df.loc[final_filter].copy() # menggunakan copy untuk menghindari setting copy warning
+    filtered_df.reset_index(drop=True, inplace=True)
+    filtered_df
+
+    return filtered_df
