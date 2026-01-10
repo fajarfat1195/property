@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<style>
+    /* Reset CSS untuk menghilangkan space putih di paling atas */
+    body, html { 
+        margin: 0 !important; 
+        padding: 0 !important; 
+        width: 100% !important;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+    }
+    table { 
+        border-spacing: 0 !important; 
+        border-collapse: collapse !important; 
+        table-layout: fixed !important; 
+        margin: 0 auto !important; 
+    }
+    
+    /* Background utama abu-abu */
+    .outer-wrapper { background-color: #f4f4f4; width: 100%; }
+    
+    /* Container konten putih di tengah */
+    .inner-container { width: 600px; background-color: #ffffff; }
+    
+    /* Header Hitam Tanpa Celah */
+    .bg-black { background-color: #000000; padding: 30px 40px; text-align: left; }
+    
+    .logo { width: 140px; height: auto; display: block; border: 0; }
+    .content-padding { padding: 40px 40px; }
+    .bg-cream { background-color: rgb(249, 246, 244); padding: 60px 40px; text-align: center; }
+    
+    /* Tombol Tetap Putih */
+    .btn { display: inline-block; padding: 14px 28px; margin: 8px; text-decoration: none !important; font-weight: bold; border-radius: 4px; }
+    .btn-yes { background-color: rgb(114, 169, 212); }
+    .btn-no { background-color: rgb(198, 102, 93); }
+    
+    .footer { padding: 40px 40px 20px 40px; font-size: 12px; color: rgb(102, 102, 102); }
+
+    @media only screen and (max-width: 620px) {
+        .inner-container { width: 100% !important; }
+        .bg-black, .content-padding, .bg-cream, .footer { padding-left: 20px !important; padding-right: 20px !important; }
+    }
+</style>
+</head>
+<body style="margin: 0; padding: 0;">
+
+    <table class="outer-wrapper" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td align="center" style="padding: 20px 0;">
+                
+                <table class="inner-container" width="600" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td class="bg-black">
+                            <img src="https://matapropertybali.com/wp-content/uploads/2025/04/Logo-MataProperty-white.png" 
+                                 alt="Mata Property" 
+                                 width="140" 
+                                 class="logo">
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="content-padding">
+                            <p>Hello,</p>
+                            <p>We’d like to share a quick update regarding the current market and your property. Compared to 2024, the market in 2025 has been slower, with more villas available and increased competition.</p>
+                            <p>To help prepare for 2026 and improve selling opportunities without lowering prices, we’ve created an optional marketing boost. This is designed to increase visibility through targeted social media ads, our website, and selected international platforms for higher-value properties.</p>
+                            <p>In many cases, investing in visibility for a short period is more effective than reducing the asking price.</p>
+                            <p>If this sounds interesting, we’d be happy to explain the details and discuss the best approach for your property.</p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="height: 20px; background-color: #ffffff; font-size: 1px; line-height: 1px;">&nbsp;</td>
+                    </tr>
+
+                    <tr>
+                        <td class="bg-cream">
+                            <a href="https://URL_WEBHOOK_ANDA?status=interested&lead_id=${Leads.Lead Id}" 
+                               class="btn btn-yes" 
+                               style="color: #ffffff !important; text-decoration: none;">
+                                I’m Interested
+                            </a>
+                            <a href="https://URL_WEBHOOK_ANDA?status=declined&lead_id=${Leads.Lead Id}" 
+                               class="btn btn-no" 
+                               style="color: #ffffff !important; text-decoration: none;">
+                                No, thank you
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="footer">
+                            Best regards,<br>
+                            <strong>Mata Property Marketing</strong>
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

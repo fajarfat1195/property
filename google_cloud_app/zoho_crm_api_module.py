@@ -7,6 +7,7 @@ import datetime
 from datetime import date
 from datetime import datetime, timedelta
 
+
 def get_crm_token():
     import requests
 
@@ -21,24 +22,64 @@ def get_crm_token():
 
     return token
 
+def push_leads_data(token, payload):
+    import requests
+    
+    # Zoho CRM v6 API endpoint for inserting records
+    url = "https://www.zohoapis.com/crm/v6/Leads"
+    
+    headers = {
+        "Authorization": f"Zoho-oauthtoken {token}",
+        "Content-Type": "application/json"
+    }
 
-def get_leads_data(token, cols=None):
+    # payload should be the dictionary containing "data" and "trigger"
+    response = requests.post(url, headers=headers, json=payload)
+    
+    return response.json(), response.status_code
+
+def update_lead_data(token, data_list):
+    # Endpoint Zoho CRM untuk update (PUT)
+    url = "https://www.zohoapis.com/crm/v2/Leads"
+    headers = {
+        "Authorization": f"Zoho-oauthtoken {token}",
+        "Content-Type": "application/json"
+    }
+    
+    # Menyusun payload sesuai format yang Anda minta
+    payload = {
+        "data": data_list,
+        "trigger": []
+    }
+    
+    response = requests.put(url, headers=headers, json=payload)
+    return response.json()
+
+ 
+def get_leads_data(token, cols=None, id=None):
     url = "https://www.zohoapis.com/crm/v2/coql"
     headers = {"Authorization": f"Zoho-oauthtoken {token}"}
     page_size = 200
 
-    start_dt = "'2025-01-01T00:00:01+08:00'"
+    # Alphabetical date variables
     end_dt = "'2025-12-30T23:59:59+08:00'"
+    start_dt = "'2025-01-01T00:00:01+08:00'"
 
     dataframes = []
     offset = 0
 
     while True:
+        # Build Query: If ID exists, filter by ID; otherwise, filter by Date
+        if id:
+            where_clause = f"where id = '{id}'"
+        else:
+            where_clause = f"where Created_Time between {start_dt} and {end_dt}"
+
         query = (
             "select Created_Time, id, Last_Name, Email, Phone, City, Country, "
             "Lead_Status, Lead_Type1, Agents "
             "from Leads "
-            f"where Created_Time between {start_dt} and {end_dt} "
+            f"{where_clause} "
             f"limit {offset}, {page_size}"
         )
 
@@ -46,26 +87,26 @@ def get_leads_data(token, cols=None):
         result = response.json()
 
         if "data" not in result:
-            print("Zoho error:", result)
             break
 
         df = pd.DataFrame(json_normalize(result["data"]))
 
-        # 👉 Filter columns only if cols is provided and not empty
         if cols:
             df = df[[c for c in cols if c in df.columns]]
 
         dataframes.append(df)
 
-        if not result.get("info", {}).get("more_records"):
+        # Break loop if searching for a single ID or no more records
+        if id or not result.get("info", {}).get("more_records"):
             break
 
         offset += page_size
 
     if not dataframes:
-        return pd.DataFrame(columns=cols if cols else None)
+        return []
 
-    return pd.concat(dataframes, ignore_index=True)
+    final_df = pd.concat(dataframes, ignore_index=True)
+    return final_df.fillna('').to_dict(orient='records')
 
 
 def get_leads_data_filter(df):
