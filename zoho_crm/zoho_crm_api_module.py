@@ -5,7 +5,7 @@ from pandas import json_normalize
 import re
 import datetime
 from datetime import date
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 def get_crm_token():
     import requests
@@ -28,7 +28,15 @@ def get_leads_data(token, cols=None):
     page_size = 200
 
     start_dt = "'2025-01-01T00:00:01+08:00'"
-    end_dt = "'2025-12-30T23:59:59+08:00'"
+
+    # Membuat offset zona waktu +08:00
+    tz = timezone(timedelta(hours=8))
+
+    # Mendapatkan tanggal hari ini dengan waktu 23:59:59
+    today = datetime.now(tz).replace(hour=23, minute=59, second=59, microsecond=0)
+
+    # Mengubahnya menjadi string format ISO
+    end_dt = f"'{today.isoformat()}'"
 
     dataframes = []
     offset = 0
